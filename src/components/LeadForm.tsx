@@ -82,9 +82,8 @@ export default function LeadForm({ sourcePage, fields = defaultFields, title, su
       {subtitle && <p className="text-muted-foreground font-body mb-8">{subtitle}</p>}
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {fields.map((field) =>
-            field.type === "textarea" ? null : (
-              <div key={field.name} className={field.type === "textarea" ? "md:col-span-2" : ""}>
+          {fields.filter((f) => f.type !== "textarea").map((field) => (
+              <div key={field.name}>
                 <label className="block text-xs tracking-[0.15em] uppercase text-muted-foreground mb-2 font-body">
                   {field.label} {field.required && <span className="text-primary">*</span>}
                 </label>
