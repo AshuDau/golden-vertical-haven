@@ -5,7 +5,21 @@ import Layout from "@/components/Layout";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import heroBg from "@/assets/hero-bg.jpg";
-import { fetchVideos, fetchImages, type VideoItem, type ImageItem } from "@/lib/ourWork";
+import { fetchVideos, fetchImages, driveImageFallbacks, type VideoItem, type ImageItem } from "@/lib/ourWork";
+
+function handleDriveImgError(originalUrl: string) {
+  return (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const fallbacks = driveImageFallbacks(originalUrl);
+    const idx = Number(img.dataset.fallbackIdx ?? "-1") + 1;
+    if (idx < fallbacks.length && img.src !== fallbacks[idx]) {
+      img.dataset.fallbackIdx = String(idx);
+      img.src = fallbacks[idx];
+    } else {
+      img.style.opacity = "0.2";
+    }
+  };
+}
 
 type Tab = "videos" | "images";
 
