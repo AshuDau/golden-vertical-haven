@@ -5,7 +5,21 @@ import Layout from "@/components/Layout";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import heroBg from "@/assets/hero-bg.jpg";
-import { fetchVideos, fetchImages, type VideoItem, type ImageItem } from "@/lib/ourWork";
+import { fetchVideos, fetchImages, driveImageFallbacks, type VideoItem, type ImageItem } from "@/lib/ourWork";
+
+function handleDriveImgError(originalUrl: string) {
+  return (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const fallbacks = driveImageFallbacks(originalUrl);
+    const idx = Number(img.dataset.fallbackIdx ?? "-1") + 1;
+    if (idx < fallbacks.length && img.src !== fallbacks[idx]) {
+      img.dataset.fallbackIdx = String(idx);
+      img.src = fallbacks[idx];
+    } else {
+      img.style.opacity = "0.2";
+    }
+  };
+}
 
 type Tab = "videos" | "images";
 
@@ -94,9 +108,7 @@ export default function OurWork() {
                       alt={img.title}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.opacity = "0.2";
-                      }}
+                      onError={handleDriveImgError(img.imageUrl)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity" />
                     <div className="absolute bottom-0 left-0 right-0 p-5">
