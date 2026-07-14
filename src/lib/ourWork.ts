@@ -73,8 +73,25 @@ async function fetchSheet(sheetName: string): Promise<Record<string, string>[]> 
   if (!jsonMatch) throw new Error("Invalid gviz response");
   const data: GVizResponse = JSON.parse(jsonMatch[1]);
 
-  const headers = data.table.cols.map((c, i) => (c.label || `col${i}`).trim());
-  return data.table.rows.map((row) => {
+  const colLabels = data.table.cols.map((c) => c.label.trim()).filter(Boolean);
+  const firstRowValues = data.table.rows[0]?.c.map((cell) => (cell?.v != null ? String(cell.v).trim() : "")) ?? [];
+  const firstRowLooksLikeHeaders = firstRowValues.some((value) =>
+    ["title", "link", "url", "thumbnail", "need to add", "publish"].some((keyword) =>
+      value.toLowerCase().includes(keyword)
+    )
+  );
+
+  const headers = colLabels.length > 0
+    ? data.table.cols.map((c, i) => (c.label || `col${i}`).trim())
+    : firstRowLooksLikeHeaders
+      ? firstRowValues.map((value, i) => value || `col${i}`)
+      : data.table.cols.map((_, i) => `col${i}`);
+
+  const rows = firstRowLooksLikeHeaders && colLabels.length === 0
+    ? data.table.rows.slice(1)
+    : data.table.rows;
+
+  return rows.map((row) => {
     const obj: Record<string, string> = {};
     row.c.forEach((cell, i) => {
       obj[headers[i]] = cell?.v != null ? String(cell.v) : "";
