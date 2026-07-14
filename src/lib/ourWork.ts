@@ -39,14 +39,24 @@ export function toDriveEmbedUrl(url: string): string {
 
 export function toDriveImageUrl(url: string): string {
   const id = extractDriveId(url);
-  if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`;
+  if (id) return `https://lh3.googleusercontent.com/d/${id}=w1600`;
   return url;
 }
 
 export function toDriveThumbnail(url: string): string {
   const id = extractDriveId(url);
-  if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+  if (id) return `https://lh3.googleusercontent.com/d/${id}=w800`;
   return url;
+}
+
+export function driveImageFallbacks(url: string): string[] {
+  const id = extractDriveId(url);
+  if (!id) return [url];
+  return [
+    `https://lh3.googleusercontent.com/d/${id}=w1600`,
+    `https://drive.google.com/thumbnail?id=${id}&sz=w1600`,
+    `https://drive.google.com/uc?export=view&id=${id}`,
+  ];
 }
 
 interface GVizCell { v: string | number | boolean | null; f?: string }
